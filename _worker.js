@@ -1,4 +1,4 @@
-// Grabora — single-file Cloudflare Pages Worker
+// GRAVORA — single-file Cloudflare Pages Worker
 // Authorized direct-media URLs only. No DRM/access-control bypass.
 
 const HTML = `<!doctype html>
@@ -7,7 +7,7 @@ const HTML = `<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#06080d">
-<title>Grabora — Save authorized media</title>
+<title>GRAVORA — Save authorized media</title>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -15,9 +15,9 @@ const HTML = `<!doctype html>
 <div class="ambient ambient-b"></div>
 
 <header class="topbar">
-  <a class="brand" href="/" aria-label="Grabora home">
+  <a class="brand" href="/" aria-label="GRAVORA home">
     <span class="brand-mark">G</span>
-    <span class="brand-word">grabora</span>
+    <span class="brand-word">gravora</span>
   </a>
   <div class="top-actions">
     <span class="secure-dot"></span>
@@ -46,7 +46,7 @@ const HTML = `<!doctype html>
       <label class="sr-only" for="url">Media URL</label>
       <div class="url-wrap">
         <span class="url-prefix">URL</span>
-        <input id="url" type="url" inputmode="url" autocomplete="url" placeholder="https://example.com/video.mp4" required>
+        <input id="url" type="url" inputmode="url" autocomplete="url" placeholder="Paste a video link or direct media URL" required>
         <button id="inspectBtn" type="submit">Check source <span>→</span></button>
       </div>
       <p class="hint"><span>●</span> Direct video, audio, image and subtitle sources are supported.</p>
@@ -63,27 +63,36 @@ const HTML = `<!doctype html>
       <span id="sourceType" class="type-badge">—</span>
     </div>
 
-    <div class="source-strip">
-      <div class="source-art"><span id="sourceArt">G</span></div>
-      <div class="source-copy">
-        <strong>Original source</strong>
-        <span>Grabora never invents quality or converts formats here.</span>
-      </div>
+    <div class="preview-media">
+      <img id="previewImage" alt="Video preview" loading="lazy">
+      <div id="previewFallback" class="preview-fallback">G</div>
+    </div>
+    <div class="preview-info">
+      <div class="preview-kicker">VIDEO PREVIEW</div>
+      <h3 id="previewTitle">Media preview</h3>
+      <p id="previewMeta">Paste a supported link to preview available metadata.</p>
     </div>
 
     <div class="options-title">SAVE AS</div>
     <div class="options">
-      <button class="option active" data-kind="video"><span class="option-icon">▶</span><span><b>Video</b><small>Original source</small></span></button>
-      <button class="option" data-kind="audio"><span class="option-icon">♪</span><span><b>Audio</b><small>Audio source only</small></span></button>
-      <button class="option" data-kind="thumbnail"><span class="option-icon">▧</span><span><b>Thumbnail</b><small>Image source only</small></span></button>
-      <button class="option" data-kind="captions"><span class="option-icon">CC</span><span><b>Captions</b><small>VTT / SRT source</small></span></button>
+      <button class="option active" data-kind="video"><span class="option-icon">▶</span><span><b>Video</b><small>MP4 preference</small></span></button>
+      <button class="option" data-kind="audio"><span class="option-icon">♪</span><span><b>Audio</b><small>Audio preference</small></span></button>
+      <button class="option" data-kind="thumbnail"><span class="option-icon">▧</span><span><b>Thumbnail</b><small>Preview image</small></span></button>
+      <button class="option" data-kind="captions"><span class="option-icon">CC</span><span><b>Captions</b><small>If supplied by source</small></span></button>
     </div>
 
+    <div class="options-title quality-title">QUALITY PREFERENCE</div>
+    <div class="quality-options">
+      <button class="quality active" data-quality="auto">Auto</button>
+      <button class="quality" data-quality="high">High</button>
+      <button class="quality" data-quality="standard">Standard</button>
+    </div>
     <div id="availability" class="availability"></div>
-    <a id="downloadBtn" class="download" href="#" rel="noopener" aria-disabled="true">
-      <span class="download-main">Download file</span>
+    <button id="downloadBtn" class="download" type="button">
+      <span class="download-main">Continue to download</span>
       <span class="download-arrow">↓</span>
-    </a>
+    </button>
+    <p class="preview-note">Preview only — this build does not retrieve or download third-party platform media.</p>
   </section>
 
   <section id="error" class="error-panel hidden">
@@ -95,12 +104,12 @@ const HTML = `<!doctype html>
     <button id="retryBtn" type="button">Retry</button>
   </section>
 
-  <div class="legal"><span>LOCKED DOWN</span> Only download media you own or have permission to download. Grabora does not bypass access controls, DRM, or platform restrictions.</div>
+  <div class="legal"><span>LOCKED DOWN</span> Only download media you own or have permission to download. GRAVORA does not bypass access controls, DRM, or platform restrictions.</div>
 
   <section class="how">
     <div class="section-kicker">HOW IT WORKS</div>
     <div class="how-grid">
-      <article><span>01</span><div><h3>Paste</h3><p>Put an authorized direct media URL into Grabora.</p></div></article>
+      <article><span>01</span><div><h3>Paste</h3><p>Put an authorized direct media URL into GRAVORA.</p></div></article>
       <article><span>02</span><div><h3>Check</h3><p>We inspect the source and show what it really provides.</p></div></article>
       <article><span>03</span><div><h3>Save</h3><p>Download the original source without fake quality choices.</p></div></article>
     </div>
@@ -108,7 +117,7 @@ const HTML = `<!doctype html>
 </main>
 
 <footer>
-  <div class="footer-brand"><span class="brand-mark small">G</span><span>grabora</span></div>
+  <div class="footer-brand"><span class="brand-mark small">G</span><span>gravora</span></div>
   <div class="footer-right"><span>Save. Simple. Fast.</span><small>Crafted by Anubhav Verma</small></div>
 </footer>
 
@@ -130,7 +139,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.035;b
 .brand{display:flex;align-items:center;gap:11px;color:var(--text);text-decoration:none;font-size:21px;font-weight:780;letter-spacing:-.5px}
 .brand-mark{width:37px;height:37px;border-radius:11px;background:linear-gradient(145deg,#fff,#cfd6df);color:#10151c;display:grid;place-items:center;font-size:19px;font-weight:900;box-shadow:0 8px 25px rgba(255,255,255,.08)}
 .top-actions{display:flex;align-items:center;gap:9px;border:1px solid rgba(160,175,195,.15);padding:8px 12px;border-radius:999px;background:rgba(15,20,29,.55)}
-.secure-dot{width:6px;height:6px;border-radius:50%;background:#aeb9c7;box-shadow:0 0 12px rgba(190,205,225,.65)}
+.secure-dot{width:6px;height:6px;border-radius:50%;background:#39d98a;box-shadow:0 0 12px rgba(57,217,138,.75)}
 .top-label{font-size:9px;letter-spacing:1.8px;color:#a5afbd;font-weight:800}
 .shell{width:min(930px,100%);margin:auto;padding:86px 22px 80px;position:relative;z-index:1}
 .hero{text-align:center;max-width:760px;margin:0 auto 46px}
@@ -200,11 +209,13 @@ footer{padding:24px 16px 30px;display:block;text-align:center}.footer-brand{just
 }
 @media(max-width:380px){.hero h1{font-size:51px}.top-label{display:none}}
 `;
-const JS = `const form=document.querySelector("#mediaForm"),urlInput=document.querySelector("#url"),result=document.querySelector("#result"),errorBox=document.querySelector("#error"),errorText=document.querySelector("#errorText"),errorTitle=document.querySelector("#errorTitle"),inspectBtn=document.querySelector("#inspectBtn"),retryBtn=document.querySelector("#retryBtn"),sourceName=document.querySelector("#sourceName"),sourceType=document.querySelector("#sourceType"),meta=document.querySelector("#meta"),availability=document.querySelector("#availability"),downloadBtn=document.querySelector("#downloadBtn"),options=[...document.querySelectorAll(".option")];let currentUrl="",currentInfo=null,currentKind="video";
-function showError(t,m){result.classList.add("hidden");errorBox.classList.remove("hidden");errorTitle.textContent=t;errorText.textContent=m}function hideError(){errorBox.classList.add("hidden")}function filenameFromUrl(raw){try{const u=new URL(raw),p=u.pathname.split("/").filter(Boolean).pop();return p||"grabora-media"}catch{return"grabora-media"}}
-function setKind(kind){currentKind=kind;options.forEach(b=>b.classList.toggle("active",b.dataset.kind===kind));if(!currentInfo)return;const allowed={video:["video/"],audio:["audio/"],thumbnail:["image/"],captions:["text/vtt","application/x-subrip","text/plain"]}[kind]||[];const ok=allowed.some(t=>currentInfo.contentType.startsWith(t));availability.textContent=ok?\`\${kind[0].toUpperCase()+kind.slice(1)} is available from this source.\`:\`\${kind[0].toUpperCase()+kind.slice(1)} is not detected at this URL. Grabora will not invent or convert a format.\`;downloadBtn.style.opacity=ok?"1":".45";downloadBtn.style.pointerEvents=ok?"auto":"none";downloadBtn.href=ok?\`/api/download?url=\${encodeURIComponent(currentUrl)}\`:"#"}
-options.forEach(b=>b.addEventListener("click",()=>setKind(b.dataset.kind)));retryBtn.addEventListener("click",()=>form.requestSubmit());
-form.addEventListener("submit",async e=>{e.preventDefault();hideError();result.classList.add("hidden");const raw=urlInput.value.trim();let u;try{u=new URL(raw)}catch{showError("Invalid URL","Please paste a complete http:// or https:// media URL.");return}if(!/^https?:$/.test(u.protocol)){showError("Unsupported URL","Only http:// and https:// sources are supported.");return}inspectBtn.disabled=true;inspectBtn.textContent="Checking…";try{const r=await fetch(\`/api/inspect?url=\${encodeURIComponent(raw)}\`),data=await r.json();if(!r.ok)throw new Error(data.error||"The source could not be inspected.");currentUrl=raw;currentInfo=data;sourceName.textContent=filenameFromUrl(raw);sourceType.textContent=data.contentType.split(";")[0]||"Unknown";meta.textContent=[data.contentType,data.contentLength?\`\${data.contentLength} bytes\`:null].filter(Boolean).join(" • ");result.classList.remove("hidden");setKind(data.contentType.startsWith("audio/")?"audio":data.contentType.startsWith("image/")?"thumbnail":data.contentType.includes("vtt")||data.contentType.includes("subrip")?"captions":"video")}catch(err){showError("Couldn’t inspect that source",err.message)}finally{inspectBtn.disabled=false;inspectBtn.innerHTML='Get Media <span>→</span>'}});
+const JS = `const form=document.querySelector("#mediaForm"),urlInput=document.querySelector("#url"),result=document.querySelector("#result"),errorBox=document.querySelector("#error"),errorText=document.querySelector("#errorText"),errorTitle=document.querySelector("#errorTitle"),inspectBtn=document.querySelector("#inspectBtn"),retryBtn=document.querySelector("#retryBtn"),sourceName=document.querySelector("#sourceName"),sourceType=document.querySelector("#sourceType"),meta=document.querySelector("#meta"),availability=document.querySelector("#availability"),downloadBtn=document.querySelector("#downloadBtn"),options=[...document.querySelectorAll(".option")],qualities=[...document.querySelectorAll(".quality")],previewImage=document.querySelector("#previewImage"),previewFallback=document.querySelector("#previewFallback"),previewTitle=document.querySelector("#previewTitle"),previewMeta=document.querySelector("#previewMeta");let currentKind="video",currentQuality="auto";
+function showError(t,m){result.classList.add("hidden");errorBox.classList.remove("hidden");errorTitle.textContent=t;errorText.textContent=m}function hideError(){errorBox.classList.add("hidden")}
+function isYouTube(raw){try{const h=new URL(raw).hostname.toLowerCase();return /(^|\.)youtube\.com$|(^|\.)youtu\.be$/.test(h)}catch{return false}}
+function setKind(kind){currentKind=kind;options.forEach(b=>b.classList.toggle("active",b.dataset.kind===kind));availability.textContent=kind==="thumbnail"?"Thumbnail preview is shown when the source provides one.":kind==="captions"?"Captions depend on the source and are not fetched in preview mode.":kind==="audio"?"Audio is shown as a format preference only in this preview build.":"Video quality is a preference only; actual formats are not fetched in preview mode."}
+options.forEach(b=>b.addEventListener("click",()=>setKind(b.dataset.kind)));qualities.forEach(b=>b.addEventListener("click",()=>{currentQuality=b.dataset.quality;qualities.forEach(q=>q.classList.toggle("active",q===b));}));retryBtn.addEventListener("click",()=>form.requestSubmit());
+downloadBtn.addEventListener("click",()=>{showError("Download is disabled in preview mode","GRAVORA can show the video preview and selection flow here, but this build does not retrieve or download third-party platform media.")});
+form.addEventListener("submit",async e=>{e.preventDefault();hideError();result.classList.add("hidden");const raw=urlInput.value.trim();let u;try{u=new URL(raw)}catch{showError("Invalid URL","Please paste a complete http:// or https:// media URL.");return}if(!/^https?:$/.test(u.protocol)){showError("Unsupported URL","Only http:// and https:// sources are supported.");return}inspectBtn.disabled=true;inspectBtn.textContent="Checking…";try{let data={contentType:"link",contentLength:null};if(!isYouTube(raw)){const r=await fetch('/api/inspect?url='+encodeURIComponent(raw));const d=await r.json();if(!r.ok)throw new Error(d.error||"The source could not be inspected.");data=d}const p=await fetch('/api/preview?url='+encodeURIComponent(raw));const pd=await p.json();if(!p.ok)throw new Error(pd.error||"Preview metadata could not be loaded.");sourceName.textContent=pd.title||"Media preview";sourceType.textContent=isYouTube(raw)?"YouTube":"MEDIA LINK";meta.textContent=isYouTube(raw)?(pd.author?pd.author+" • Preview metadata":"Preview metadata"):[data.contentType,data.contentLength?data.contentLength+" bytes":null].filter(Boolean).join(" • ");previewTitle.textContent=pd.title||"Media preview";previewMeta.textContent=isYouTube(raw)?((pd.author?"By "+pd.author+" • ":"")+"Preview only — source media is not retrieved."):(data.contentType+" • Preview only");if(pd.thumbnail){previewImage.src=pd.thumbnail;previewImage.classList.add("loaded");previewFallback.classList.add("hidden")}else{previewImage.removeAttribute("src");previewImage.classList.remove("loaded");previewFallback.classList.remove("hidden")}result.classList.remove("hidden");setKind("video")}catch(err){showError("Couldn’t prepare that preview",err.message)}finally{inspectBtn.disabled=false;inspectBtn.innerHTML='Get Media <span>→</span>'}});
 `;
 
 function json(data, status=200) {
@@ -250,6 +261,22 @@ export default {
       return new Response(JS, {headers: withCors({"content-type":"application/javascript; charset=utf-8"})});
     }
 
+    if (url.pathname === "/api/preview") {
+      const target = url.searchParams.get("url");
+      if (!target || !validTarget(target)) return json({error:"A valid http/https URL is required."},400);
+      try {
+        const u = new URL(target);
+        const isYouTube = /(^|\.)youtube\.com$|(^|\.)youtu\.be$/.test(u.hostname);
+        if (!isYouTube) return json({ok:true,kind:"generic",title:"Media preview",thumbnail:null});
+        const o = await fetch("https://www.youtube.com/oembed?url=" + encodeURIComponent(target) + "&format=json", {redirect:"follow"});
+        if (!o.ok) return json({error:"YouTube metadata could not be loaded."},502);
+        const data = await o.json();
+        return json({ok:true,kind:"youtube",title:data.title || "YouTube video",author:data.author_name || "YouTube",thumbnail:data.thumbnail_url || null});
+      } catch {
+        return json({error:"Preview metadata could not be loaded."},502);
+      }
+    }
+
     if (url.pathname === "/api/inspect") {
       const target = url.searchParams.get("url");
       if (!target || !validTarget(target)) return json({error:"A valid http/https media URL is required."},400);
@@ -271,7 +298,7 @@ export default {
         const upstream = await fetch(target, {redirect:"follow"});
         if (!upstream.ok) return new Response(`Source returned HTTP ${upstream.status}.`,{status:502,headers:withCors()});
         const headers = withCors(upstream.headers);
-        headers.set("Content-Disposition",'attachment; filename="grabora-media"');
+        headers.set("Content-Disposition",'attachment; filename="gravora-media"');
         return new Response(upstream.body, {status:200,headers});
       } catch {
         return new Response("Unable to fetch the source.",{status:502,headers:withCors()});
