@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Grabora — Grab it. Keep it.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06070d;
+    --bg-2: #0b0d18;
+    --card: rgba(255,255,255,0.04);
+    --card-hover: rgba(255,255,255,0.07);
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #eef0f6;
+    --text-dim: #8a90a6;
+    --text-mute: #5a6079;
+    --brand-1: #7c5cff;
+    --brand-2: #4dabff;
+    --brand-3: #ff5cf0;
+    --accent: #6ee7ff;
+    --success: #22d3a0;
+    --danger: #ff5577;
+    --radius: 18px;
+    --radius-sm: 12px;
+    --shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  /* Animated mesh background */
+  body::before {
+    content:'';
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 10%, rgba(124,92,255,0.25), transparent 60%),
+      radial-gradient(ellipse 50% 50% at 85% 20%, rgba(77,171,255,0.18), transparent 60%),
+      radial-gradient(ellipse 70% 60% at 50% 100%, rgba(255,92,240,0.12), transparent 60%);
+    animation: meshMove 20s ease-in-out infinite alternate;
+  }
+  @keyframes meshMove {
+    0%   { transform: translate(0,0) scale(1); }
+    50%  { transform: translate(-3%, -2%) scale(1.05); }
+    100% { transform: translate(2%, 3%) scale(1); }
+  }
+
+  /* Grain overlay */
+  body::after {
+    content:'';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* ============ NAV ============ */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    background: rgba(6,7,13,0.6);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    cursor: pointer;
+  }
+  .logo-icon {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+    display: grid;
+    place-items: center;
+    box-shadow: 0 8px 24px rgba(124,92,255,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+  .logo-icon::after {
+    content:'';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.4), transparent 60%);
+    animation: shine 3s infinite;
+  }
+  @keyframes shine {
+    0% { transform: translateX(-100%) translateY(-100%); }
+    100% { transform: translateX(100%) translateY(100%); }
+  }
+  .logo-icon svg { width: 18px; height: 18px; position: relative; z-index: 1; }
+  .logo-text span {
+    background: linear-gradient(135deg, #fff, #a8b3d0);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .nav-links { display: flex; gap: 8px; align-items: center; }
+  .nav-links a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--card); }
+  .nav-cta {
+    background: linear-gradient(135deg, var(--brand-1), var(--brand-2)) !important;
+    color: #fff !important;
+    box-shadow: 0 8px 24px rgba(124,92,255,0.3);
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 80px 0 60px;
+    text-align: center;
+    position: relative;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+  }
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 12px var(--success);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.4); }
+  }
+
+  h1 {
+    font-size: clamp(38px, 6vw, 72px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    margin-bottom: 20px;
+  }
+  .grad-text {
+    background: linear-gradient(135deg, var(--brand-1) 0%, var(--brand-2) 50%, var(--brand-3) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    background-size: 200% 200%;
+    animation: gradShift 4s ease infinite;
+  }
+  @keyframes gradShift {
+    0%,100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: clamp(15px, 1.6vw, 18px);
+    max-width: 600px;
+    margin: 0 auto 40px;
+  }
+
+  /* ============ SEARCH BAR ============ */
+  .search-wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px;
+    backdrop-filter: blur(20px);
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: var(--shadow);
+  }
+  .search-box:focus-within {
+    border-color: var(--border-hover);
+    box-shadow: 0 0 0 4px rgba(124,92,255,0.15), var(--shadow);
+    transform: translateY(-2px);
+  }
+  .search-icon {
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    display: grid;
+    place-items: center;
+    color: var(--text-mute);
+  }
+  #q {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: 500;
+    padding: 12px 0;
+    min-width: 0;
+  }
+  #q::placeholder { color: var(--text-mute); }
+
+  .btn {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(124,92,255,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before {
+    content:'';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+  }
+  .btn-primary:hover::before { transform: translateX(100%); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(124,92,255,0.5); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-ghost {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--card-hover); border-color: var(--border-hover); }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .chip {
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+  }
+  .chip:hover {
+    color: var(--text);
+    border-color: var(--border-hover);
+    background: var(--card-hover);
+    transform: translateY(-1px);
+  }
+
+  /* ============ SECTION ============ */
+  section { padding: 60px 0; }
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .section-title {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .section-sub {
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  /* ============ GRID ============ */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .vcard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
+    backdrop-filter: blur(10px);
+    animation: fadeUp 0.5s backwards;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .vcard:hover {
+    transform: translateY(-6px);
+    border-color: var(--border-hover);
+    background: var(--card-hover);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+  }
+  .vthumb {
+    position: relative;
+    aspect-ratio: 16/10;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0e1020, #1a1e35);
+  }
+  .vthumb img, .vthumb video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+    display: block;
+  }
+  .vcard:hover .vthumb img, .vcard:hover .vthumb video { transform: scale(1.08); }
+  .vthumb::after {
+    content:'';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .vbadges {
+    position: absolute;
+    top: 12px; left: 12px; right: 12px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 2;
+    gap: 8px;
+  }
+  .tag {
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .tag.hd {
+    background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+    border: none;
+    box-shadow: 0 4px 12px rgba(124,92,255,0.4);
+  }
+  .vdur {
+    position: absolute;
+    bottom: 12px; right: 12px;
+    z-index: 2;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(0,0,0,0.7);
+    font-size: 11px;
+    font-weight: 600;
+    backdrop-filter: blur(6px);
+  }
+  .vinfo { padding: 16px; }
+  .vtitle {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .vmeta {
+    color: var(--text-mute);
+    font-size: 12px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .vmeta span { display: flex; align-items: center; gap: 4px; }
+
+  /* ============ SKELETON ============ */
+  .sk {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .sk-thumb { aspect-ratio: 16/10; background: linear-gradient(90deg, #12141f 25%, #1a1e2e 50%, #12141f 75%); background-size: 200% 100%; animation: sk 1.5s infinite; }
+  .sk-line { height: 12px; border-radius: 6px; margin: 14px 16px; background: linear-gradient(90deg, #12141f 25%, #1a1e2e 50%, #12141f 75%); background-size: 200% 100%; animation: sk 1.5s infinite; }
+  .sk-line.short { width: 40%; }
+  @keyframes sk { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  /* ============ MODAL ============ */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(12px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .modal-overlay.show { display: flex; opacity: 1; }
+  .modal {
+    background: linear-gradient(180deg, #0e1020, #0a0c16);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    position: relative;
+  }
+  .modal-overlay.show .modal { transform: scale(1); }
+  .modal::-webkit-scrollbar { width: 8px; }
+  .modal::-webkit-scrollbar-track { background: transparent; }
+  .modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    z-index: 10;
+    transition: all 0.2s;
+    backdrop-filter: blur(10px);
+  }
+  .modal-close:hover { background: var(--danger); transform: rotate(90deg); }
+
+  .modal-preview {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    position: relative;
+  }
+  .modal-preview video, .modal-preview img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .modal-body { padding: 28px; }
+  .modal-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.02em; }
+  .modal-meta { color: var(--text-dim); font-size: 13px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 16px; }
+  .modal-meta span { display: flex; align-items: center; gap: 6px; }
+
+  .quality-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .quality-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .qrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+    gap: 16px;
+  }
+  .qrow:hover {
+    border-color: var(--border-hover);
+    background: var(--card-hover);
+    transform: translateX(4px);
+  }
+  .qrow-left { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
+  .qbadge {
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(124,92,255,0.2), rgba(77,171,255,0.2));
+    border: 1px solid rgba(124,92,255,0.3);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .qbadge.uhd {
+    background: linear-gradient(135deg, rgba(255,92,240,0.2), rgba(124,92,255,0.2));
+    border-color: rgba(255,92,240,0.4);
+    color: #ff9ff0;
+  }
+  .qinfo { min-width: 0; }
+  .qname { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .qsize { font-size: 12px; color: var(--text-mute); }
+
+  .btn-dl {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 18px;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .btn-dl:hover {
+    background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(124,92,255,0.4);
+  }
+
+  /* ============ TOAST ============ */
+  .toast-wrap {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+  .toast {
+    background: linear-gradient(135deg, #14172a, #0e1020);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 260px;
+    max-width: 380px;
+    animation: toastIn 0.4s cubic-bezier(0.4,0,0.2,1);
+    pointer-events: auto;
+    backdrop-filter: blur(20px);
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .toast.out { animation: toastOut 0.4s forwards; }
+  @keyframes toastOut {
+    to { opacity: 0; transform: translateX(120%); }
+  }
+  .toast-icon { flex-shrink: 0; width: 20px; height: 20px; display: grid; place-items: center; }
+  .toast.success .toast-icon { color: var(--success); }
+  .toast.error .toast-icon { color: var(--danger); }
+  .toast.info .toast-icon { color: var(--brand-2); }
+
+  /* ============ FEATURES ============ */
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .feature {
+    padding: 26px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: all 0.3s;
+    backdrop-filter: blur(10px);
+  }
+  .feature:hover { transform: translateY(-4px); border-color: var(--border-hover); background: var(--card-hover); }
+  .feature-icon {
+    width: 46px; height: 46px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(77,171,255,0.15));
+    border: 1px solid rgba(124,92,255,0.25);
+    color: var(--accent);
+  }
+  .feature h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .feature p { color: var(--text-dim); font-size: 14px; line-height: 1.6; }
+
+  /* ============ FOOTER ============ */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 0 30px;
+    margin-top: 60px;
+    color: var(--text-mute);
+    font-size: 13px;
+  }
+  .footer-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer-inner a { color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+  .footer-inner a:hover { color: var(--text); }
+
+  /* ============ EMPTY / ERROR ============ */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+  }
+  .empty svg { margin-bottom: 16px; opacity: 0.4; }
+  .empty h3 { color: var(--text); font-size: 18px; margin-bottom: 8px; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 700px) {
+    .container { padding: 0 16px; }
+    .hero { padding: 50px 0 40px; }
+    .nav-links a:not(.nav-cta) { display: none; }
+    .search-box { flex-wrap: wrap; padding: 12px; }
+    #q { width: 100%; padding: 8px 4px; order: 1; }
+    .search-icon { display: none; }
+    .search-box .btn { width: 100%; justify-content: center; order: 2; margin-top: 4px; }
+    .grid { grid-template-columns: 1fr; gap: 14px; }
+    .modal-body { padding: 20px; }
+    .qrow { padding: 12px 14px; }
+    .qrow-left { gap: 10px; }
+    .btn-dl { padding: 9px 14px; font-size: 12px; }
+    .toast-wrap { left: 16px; right: 16px; bottom: 16px; }
+    .toast { min-width: 0; }
+  }
+
+  /* ============ SCROLLBAR ============ */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #1e2235; border-radius: 5px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: #2a3050; }
+
+  /* Fade-in observer */
+  .reveal { opacity: 0; transform: translateY(30px); transition: all 0.7s cubic-bezier(0.4,0,0.2,1); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="logo" onclick="scrollTo({top:0,behavior:'smooth'})">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </div>
+      <div class="logo-text"><span>Grabora</span></div>
+    </div>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#top" class="nav-cta" onclick="event.preventDefault();scrollTo({top:0,behavior:'smooth'})">Grab Now</a>
+    </div>
+  </div>
+</nav>
+
+<main class="container">
+
+  <section class="hero">
+    <div class="badge"><span class="badge-dot"></span> Powered by Pexels · 4K Ready · Free Forever</div>
+    <h1>Grab it. <span class="grad-text">Keep it.</span></h1>
+    <p class="subtitle">Search millions of free videos or paste a direct media link. Get up to 4K quality — no watermarks, no signup, no hassle.</p>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <div class="search-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <input id="q" type="text" placeholder="Search videos… (e.g. ocean, city, nature)" autocomplete="off" />
+        <button class="btn btn-primary" id="searchBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Search
+        </button>
+      </div>
+
+      <div class="chips" id="chips"></div>
+    </div>
+  </section>
+
+  <section id="results-section" style="display:none;">
+    <div class="section-head">
+      <div>
+        <div class="section-title" id="resultsTitle">Results</div>
+        <div class="section-sub" id="resultsSub"></div>
+      </div>
+      <div class="section-sub" id="resultsCount"></div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section id="how" class="reveal">
+    <div class="section-head">
+      <div class="section-title">How it works</div>
+      <div class="section-sub">Three steps. Zero friction.</div>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <h3>1. Search</h3>
+        <p>Type any keyword — nature, city, tech, food. We pull from millions of free HD & 4K videos.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <h3>2. Pick quality</h3>
+        <p>Choose from available resolutions — 4K, 1440p, 1080p, 720p, 480p — sorted by size.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </div>
+        <h3>3. Download</h3>
+        <p>One click. Direct from the source. No watermark, no signup, no nonsense.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="reveal">
+    <div class="section-head">
+      <div class="section-title">Why Grabora</div>
+      <div class="section-sub">Built clean. Built fast.</div>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+        </div>
+        <h3>Instant results</h3>
+        <p>Optimized API calls with skeleton loading — results appear in milliseconds.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2"/>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+          </svg>
+        </div>
+        <h3>Up to 4K</h3>
+        <p>We surface every resolution the source offers — including UHD 4K when available.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <h3>100% legal</h3>
+        <p>Only free-license sources. No DRM bypass. No ToS violations. Clean hands.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </div>
+        <h3>Works everywhere</h3>
+        <p>Desktop, tablet, mobile. Same fluid experience across all devices.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <div>© <span id="year"></span> Grabora · Grab it. Keep it.</div>
+    <div style="display:flex;gap:18px;">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="https://www.pexels.com" target="_blank" rel="noopener">Powered by Pexels</a>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal" id="modalBox">
+    <button class="modal-close" id="modalClose" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <div class="modal-preview" id="modalPreview"></div>
+    <div class="modal-body">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-meta" id="modalMeta"></div>
+      <div class="quality-label">Available qualities</div>
+      <div class="quality-list" id="qualityList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ============================================================
+   GRABORA — app.js
+   Powered by Pexels API (free, legal, up to 4K)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. CONFIG — add your Pexels API key here
+   Get one free (takes 30 seconds): https://www.pexels.com/api/
+   ------------------------------------------------------------ */
+const PEXELS_API_KEY = "PASTE_YOUR_PEXELS_API_KEY_HERE";
+const PEXELS_BASE = "https://api.pexels.com/videos";
+
+/* ------------------------------------------------------------
+   2. UTILITIES
+   ------------------------------------------------------------ */
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+
+function fmtBytes(bytes) {
+  if (!bytes || bytes <= 0) return "—";
+  const units = ["B", "KB", "MB", "GB"];
+  let i = 0;
+  while (bytes >= 1024 && i < units.length - 1) { bytes /= 1024; i++; }
+  return bytes.toFixed(bytes < 10 ? 1 : 0) + " " + units[i];
+}
+
+function fmtDur(sec) {
+  if (!sec) return "0:00";
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return m + ":" + String(s).padStart(2, "0");
+}
+
+function qualityLabel(w, h) {
+  if (h >= 2160 || w >= 3840) return { text: "4K", uhd: true };
+  if (h >= 1440) return { text: "2K", uhd: true };
+  if (h >= 1080) return { text: "1080p", uhd: false };
+  if (h >= 720) return { text: "720p", uhd: false };
+  if (h >= 480) return { text: "480p", uhd: false };
+  return { text: (h || w || 0) + "p", uhd: false };
+}
+
+function toast(msg, type = "info") {
+  const wrap = $("#toastWrap");
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  const icons = {
+    success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    error:   '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+    info:    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+  };
+  el.innerHTML = '<div class="toast-icon">' + (icons[type] || icons.info) + '</div><div>' + msg + '</div>';
+  wrap.appendChild(el);
+  setTimeout(() => {
+    el.classList.add("out");
+    setTimeout(() => el.remove(), 400);
+  }, 3200);
+}
+
+/* ------------------------------------------------------------
+   3. REVEAL ON SCROLL
+   ------------------------------------------------------------ */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { threshold: 0.1 });
+$$(".reveal").forEach((el) => io.observe(el));
+
+/* ------------------------------------------------------------
+   4. QUICK CHIPS
+   ------------------------------------------------------------ */
+const CHIPS = ["Nature", "Ocean", "City", "Space", "Food", "Technology", "People", "Animal", "Abstract"];
+const chipsEl = $("#chips");
+CHIPS.forEach((c) => {
+  const b = document.createElement("button");
+  b.className = "chip";
+  b.textContent = c;
+  b.onclick = () => { $("#q").value = c; search(c); };
+  chipsEl.appendChild(b);
+});
+
+/* ------------------------------------------------------------
+   5. RENDER — skeleton
+   ------------------------------------------------------------ */
+function renderSkeletons(n = 8) {
+  const grid = $("#grid");
+  grid.innerHTML = "";
+  for (let i = 0; i < n; i++) {
+    const sk = document.createElement("div");
+    sk.className = "sk";
+    sk.innerHTML = '<div class="sk-thumb"></div><div class="sk-line"></div><div class="sk-line short"></div>';
+    grid.appendChild(sk);
+  }
+}
+
+/* ------------------------------------------------------------
+   6. RENDER — video cards
+   ------------------------------------------------------------ */
+function renderCards(videos) {
+  const grid = $("#grid");
+  grid.innerHTML = "";
+
+  if (!videos.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1;"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><h3>No videos found</h3><p>Try a different keyword.</p></div>';
+    return;
+  }
+
+  videos.forEach((v, i) => {
+    const card = document.createElement("div");
+    card.className = "vcard";
+    card.style.animationDelay = (i * 40) + "ms";
+
+    const files = (v.video_files || []).filter(f => f.link);
+    const best = files.slice().sort((a, b) => (b.width || 0) - (a.width || 0))[0];
+    if (!best) return;
+
+    const q = qualityLabel(v.width, v.height);
+    const poster = v.image || best.link;
+    const dur = fmtDur(v.duration);
+
+    card.innerHTML = `
+      <div class="vthumb">
+        <img loading="lazy" src="${poster}" alt="" onerror="this.style.display='none'">
+        <div class="vbadges">
+          <span class="tag ${q.uhd ? 'hd' : ''}">${q.text}</span>
+        </div>
+        <div class="vdur">${dur}</div>
+      </div>
+      <div class="vinfo">
+        <div class="vtitle">${escapeHtml(v.user?.name || "Untitled")}</div>
+        <div class="vmeta">
+          <span>${v.width}×${v.height}</span>
+          <span>·</span>
+          <span>${files.length} formats</span>
+        </div>
+      </div>
+    `;
+
+    card.onclick = () => openModal(v);
+    grid.appendChild(card);
+  });
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+/* ------------------------------------------------------------
+   7. SEARCH — Pexels API
+   ------------------------------------------------------------ */
+async function search(query) {
+  if (!query || !query.trim()) { toast("Type something to search.", "info"); return; }
+  if (!PEXELS_API_KEY || PEXELS_API_KEY.includes("PASTE_")) {
+    toast("Add your Pexels API key in the code first.", "error");
+    return;
+  }
+
+  const section = $("#results-section");
+  section.style.display = "block";
+  $("#resultsTitle").textContent = `Results for "${query}"`;
+  $("#resultsSub").textContent = "Loading…";
+  $("#resultsCount").textContent = "";
+  renderSkeletons(8);
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  try {
+    const res = await fetch(`${PEXELS_BASE}/search?query=${encodeURIComponent(query)}&per_page=24&orientation=landscape`, {
+      headers: { Authorization: PEXELS_API_KEY }
+    });
+    if (!res.ok) throw new Error("API error " + res.status);
+    const data = await res.json();
+    renderCards(data.videos || []);
+    $("#resultsSub").textContent = "Tap any video to see all available qualities.";
+    $("#resultsCount").textContent = (data.videos?.length || 0) + " videos";
+  } catch (err) {
+    console.error(err);
+    $("#grid").innerHTML = '<div class="empty" style="grid-column:1/-1;"><h3>Something went wrong</h3><p>' + escapeHtml(err.message) + '</p></div>';
+    $("#resultsSub").textContent = "";
+    toast("Search failed. Check your API key.", "error");
+  }
+}
+
+/* ------------------------------------------------------------
+   8. MODAL — quality picker
+   ------------------------------------------------------------ */
+let activeVideo = null;
+
+function openModal(v) {
+  activeVideo = v;
+  const modal = $("#modal");
+  const preview = $("#modalPreview");
+  const files = (v.video_files || []).filter(f => f.link);
+
+  const best = files.slice().sort((a, b) => (b.width || 0) - (a.width || 0))[0];
+  preview.innerHTML = `<video controls playsinline preload="metadata" poster="${v.image || ""}" src="${best ? best.link : ""}"></video>`;
+
+  $("#modalTitle").textContent = v.user?.name || "Untitled video";
+  $("#modalMeta").innerHTML = `
+    <span>${v.width}×${v.height} master</span>
+    <span>·</span>
+    <span>${fmtDur(v.duration)}</span>
+    <span>·</span>
+    <span>${files.length} formats available</span>
+  `;
+
+  const list = $("#qualityList");
+  list.innerHTML = "";
+
+  const grouped = {};
+  files.forEach(f => {
+    const key = (f.height || 0) + "p_" + (f.file_type || "mp4");
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(f);
+  });
+
+  const rows = files
+    .slice()
+    .sort((a, b) => (b.height || 0) - (a.height || 0) || (b.width || 0) - (a.width || 0))
+    .map(f => {
+      const q = qualityLabel(f.width, f.height);
+      const ext = (f.file_type || "mp4").toUpperCase();
+      const size = f.size ? fmtBytes(f.size) : "—";
+      const w = f.width || 0, h = f.height || 0;
+
+      const row = document.createElement("div");
+      row.className = "qrow";
+      row.innerHTML = `
+        <div class="qrow-left">
+          <span class="qbadge ${q.uhd ? 'uhd' : ''}">${q.text}</span>
+          <div class="qinfo">
+            <div class="qname">${w}×${h} · ${ext}</div>
+            <div class="qsize">${size}${f.fps ? " · " + f.fps + " fps" : ""}</div>
+          </div>
+        </div>
+        <button class="btn btn-dl">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download
+        </button>
+      `;
+      row.querySelector(".btn-dl").onclick = (e) => {
+        e.stopPropagation();
+        downloadFile(f.link, buildFilename(v, q.text, ext.toLowerCase()));
+      };
+      return row;
+    });
+
+  rows.forEach(r => list.appendChild(r));
+
+  modal.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+function buildFilename(v, quality, ext) {
+  const base = (v.user?.name || "grabora").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return `grabora-${base}-${quality}.${ext}`;
+}
+
+function downloadFile(url, filename) {
+  toast("Starting download…", "info");
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.target = "_blank";
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => toast("Download started ✓", "success"), 700);
+}
+
+function closeModal() {
+  $("#modal").classList.remove("show");
+  $("#modalPreview").innerHTML = "";
+  document.body.style.overflow = "";
+}
+
+$("#modalClose").onclick = closeModal;
+$("#modal").onclick = (e) => { if (e.target.id === "modal") closeModal(); };
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+
+/* ------------------------------------------------------------
+   9. WIRING
+   ------------------------------------------------------------ */
+$("#searchBtn").onclick = () => search($("#q").value.trim());
+$("#q").addEventListener("keydown", (e) => { if (e.key === "Enter") search($("#q").value.trim()); });
+$("#year").textContent = new Date().getFullYear();
+
+/* Paste-a-direct-URL support: if user pastes an http(s) URL and hits Enter,
+   we treat it as a direct media link and open a mini "download" modal. */
+$("#q").addEventListener("paste", () => {
+  setTimeout(() => {
+    const v = $("#q").value.trim();
+    if (/^https?:\/\/.+\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(v)) {
+      toast("Direct link detected — opening downloader…", "info");
+      openDirectModal(v);
+    }
+  }, 50);
+});
+
+function openDirectModal(url) {
+  const modal = $("#modal");
+  $("#modalPreview").innerHTML = `<video controls playsinline preload="metadata" src="${url}"></video>`;
+  $("#modalTitle").textContent = "Direct media link";
+  $("#modalMeta").innerHTML = `<span>${escapeHtml(url.split("/").pop().split("?")[0])}</span>`;
+  const list = $("#qualityList");
+  list.innerHTML = "";
+  const row = document.createElement("div");
+  row.className = "qrow";
+  row.innerHTML = `
+    <div class="qrow-left">
+      <span class="qbadge uhd">SRC</span>
+      <div class="qinfo">
+        <div class="qname">Original source</div>
+        <div class="qsize">As provided</div>
+      </div>
+    </div>
+    <button class="btn btn-dl">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Download
+    </button>
+  `;
+  row.querySelector(".btn-dl").onclick = () => downloadFile(url, url.split("/").pop().split("?")[0] || "video.mp4");
+  list.appendChild(row);
+  modal.classList.add("show");
+  document.body.style.overflow = "hidden";
+}
+
+/* ------------------------------------------------------------
+   10. BOOT — welcome + auto-load trending on first visit
+   ------------------------------------------------------------ */
+window.addEventListener("load", () => {
+  if (!PEXELS_API_KEY || PEXELS_API_KEY.includes("PASTE_")) {
+    setTimeout(() => toast("Heads up: add your Pexels API key in the code to go live.", "info"), 800);
+  } else {
+    // Optional: auto-load a trending query
+    // search("nature");
+  }
+});
+</script>
+</body>
+</html>
